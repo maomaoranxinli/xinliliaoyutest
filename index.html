@@ -1,65 +1,108 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>开始测试</title>
+  <title>开始心理测试</title>
 
   <style>
-    :root{
-      --bg:#8fae52;
-      --card:#f6f8e6;
-      --btn:#86A63C;
-      --text:#1f1f1f;
-      --muted:#666;
-    }
-    html,body{ margin:0; padding:0; height:100%; background:var(--bg); }
     body{
-      font-family: system-ui, -apple-system, "PingFang SC", "Hiragino Sans GB",
-                   "Microsoft YaHei", Arial, sans-serif;
-      display:flex; align-items:center; justify-content:center;
-      padding:24px;
-      color:var(--text);
+      margin:0;
+      height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#8fae52;
+      font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial;
+      color:#222;
     }
-    .card{
-      width:min(420px, 100%);
-      background:var(--card);
+
+    .box{
+      background:#f6f8e6;
+      padding:26px 22px 28px;
       border-radius:18px;
-      padding:26px 22px 22px;
-      box-shadow:0 14px 40px rgba(0,0,0,.18);
       text-align:center;
+      width:82%;
+      max-width:360px;
+      box-shadow:0 12px 30px rgba(0,0,0,.15);
     }
-    h1{ margin:0 0 12px; font-size:20px; font-weight:800; }
-    .desc{ margin:0 0 18px; font-size:14px; line-height:1.7; color:var(--muted); }
-    .btn{
-      width:100%; height:50px; border:0; border-radius:999px;
-      background:var(--btn); color:#fff; font-size:16px; font-weight:700;
+
+    h1{
+      font-size:20px;
+      margin:0 0 12px 0;
+      font-weight:700;
     }
-    .tip{
-      margin:14px 0 0; font-size:12px; line-height:1.6; color:#777;
+
+    .guide{
+      font-size:14px;
+      line-height:1.6;
+      color:#555;
+      margin-bottom:18px;
     }
-    .tip b{ color:#333; }
+
+    button{
+      width:100%;
+      height:48px;
+      border:none;
+      border-radius:999px;
+      background:#86A63C;
+      color:#fff;
+      font-size:16px;
+      font-weight:600;
+    }
+
+    .copy{
+      margin-top:14px;
+      font-size:13px;
+      color:#666;
+      line-height:1.6;
+      cursor:pointer;
+      user-select:none;
+    }
+
+    .copy span{
+      text-decoration:underline;
+      color:#444;
+    }
+
+    .copied{
+      color:#86A63C;
+      margin-top:8px;
+      font-size:12px;
+      display:none;
+    }
   </style>
 </head>
 
 <body>
-  <div class="card">
+  <div class="box">
     <h1>开始心理测试</h1>
-    <p class="desc">
-      点击按钮进入测试。<br>
-      若无法在小红书内打开：点右上角 <b>···</b> → <b>在浏览器中打开</b><br>
-      或选择 <b>复制链接</b> 后粘贴到浏览器。
-    </p >
 
-    <button class="btn" onclick="go()">开始测试</button>
+    <div class="guide">
+      建议在浏览器中完成测试，体验更稳定。
+    </div>
 
-    <p class="tip">建议：在浏览器打开后体验更稳定。</p >
+    <button onclick="go()">开始测试</button>
+
+    <div class="copy" onclick="copyLink()">
+      若无法打开，可 <span>复制链接</span> 后在浏览器中打开
+    </div>
+
+    <div class="copied" id="copiedTip">链接已复制</div>
   </div>
 
   <script>
     function go(){
       window.location.href = "./test.html";
+    }
+
+    function copyLink(){
+      const url = window.location.href;
+      navigator.clipboard.writeText(url).then(()=>{
+        const tip = document.getElementById("copiedTip");
+        tip.style.display = "block";
+        setTimeout(()=>{ tip.style.display = "none"; }, 2000);
+      });
     }
   </script>
 </body>
