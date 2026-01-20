@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>茂茂然｜陪你把思路理顺</title>
+
+  <style>
+    :root{
+      --bg-green: #8fae52;
+      --card: #f6f8e6;
+      --text: #222;
+      --muted: rgba(255,255,255,.75);
+
+      --btn: #86A63C;
+      --btn-h: 56px;
+
+      --safe-b: env(safe-area-inset-bottom, 0px);
+      --safe-t: env(safe-area-inset-top, 0px);
+    }
+
+    *{ box-sizing: border-box; }
+    html, body{
+      margin:0;
+      padding:0;
+      height:100%;
+      font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial;
+      color: var(--text);
+      background: var(--bg-green);
+    }
+
+    /* 页面容器 */
+    .page{
+      min-height: 100vh;
+      width: 100%;
+      position: relative;
+      display: none;
+    }
+    .page.active{ display:block; }
+
+    /* 封面背景：用你的草地图片铺满 */
+    .cover-bg{
+      min-height: 100vh;
+      padding-top: calc(16px + var(--safe-t));
+      padding-bottom: calc(22px + var(--btn-h) + var(--safe-b)); /* 给悬浮按钮留一点空间（不移动按钮，只是避免文字压到最底） */
+      background: url("bg.jpg") center/cover no-repeat;
+      display:flex;
+      flex-direction: column;
+      align-items:center;
+    }
+
+    .brand{
+      margin: 14px 0 18px 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: .5px;
+      text-align:center;
+      padding: 0 16px;
+    }
+
+    /* 中间卡片（尽量像你第二张图） */
+    .card{
+      width: min(860px, calc(100% - 44px));
+      background: var(--card);
+      border-radius: 18px;
+      box-shadow: 0 14px 40px rgba(0,0,0,.16);
+      padding: 28px 28px 30px 28px;
+      overflow: hidden;
+    }
+
+    /* 为了在手机一屏内尽量显示完整：让卡片内部可滚动（样式不变） */
+    .card.scrollable{
+      max-height: calc(100vh - 120px - var(--btn-h) - var(--safe-b));
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 44px; /* 让最底部文字更舒服 */
+    }
+
+  .title{
+  font-size: 40px;
+  line-height: 1.25;
+  margin: 8px 0 18px 0;
+  text-align:center;
+  font-weight: 800;
+  letter-spacing: .5px;
+}
+
+/* 手机端优化 */
+@media (max-width: 480px){
+  .title{
+    font-size: 34px;
+    line-height: 1.35;
+    letter-spacing: .3px;
+  }
+}
+
+    .para{
+      font-size: 20px;
+      line-height: 1.9;
+      margin: 0 0 18px 0;
+      white-space: pre-line; /* 保留你给的换行 */
+    }
+
+    .spacer{ height: 8px; }
+
+    .italic{
+      font-style: italic;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    /* 悬浮按钮（封面和测试页都可以用） */
+    .floating{
+      position: fixed;
+      left: 50%;
+      bottom: calc(22px + var(--safe-b));
+      transform: translateX(-50%);
+      z-index: 9999;
+
+      width: min(520px, calc(100% - 36px));
+      height: var(--btn-h);
+      border: 0;
+      border-radius: 999px;
+
+      background: var(--btn);
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+
+      box-shadow: 0 10px 28px rgba(0,0,0,.18);
+    }
+    .floating:disabled{
+      opacity:.55;
+    }
+
+      /* ---------------- 测试页 ---------------- */
+    .quiz-wrap{
+      min-height: 100vh;
+      padding: calc(18px + var(--safe-t)) 16px calc(18px + var(--btn-h) + var(--safe-b)) 16px;
+      background: #f3f7df;
+    }
+
+    .quiz-card{
+      max-width: 860px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.10);
+      padding: 18px;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .progress{
+      font-size: 14px;
+      color: #666;
+    }
+
+    .navhint{
+      font-size: 13px;
+      color:#888;
+    }
+
+    .q-title{
+      font-size: 22px;
+      line-height: 1.4;
+      margin: 10px 0 14px 0;
+      font-weight: 800;
+    }
+
+    .options{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .opt{
+      border: 1px solid #e6e6e6;
+      border-radius: 14px;
+      padding: 14px 14px;
+      background: #fafafa;
+      font-size: 18px;
+      line-height: 1.55;
+      cursor: pointer;
+      user-select: none;
+    }
+    .opt:hover{ background:#f2f2f2; }
+    .opt.active{
+      border-color: rgba(134,166,60,.65);
+      background: rgba(134,166,60,.10);
+    }
+    .opt.disabled{
+      opacity: .65;
+      cursor: not-allowed;
+    }
+
+    /* 题目导航（任意上一题） */
+    .nav{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #eee;
+    }
+    .nav button{
+      border: 1px solid #e6e6e6;
+      background:#fff;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor:pointer;
+    }
+    .nav button.current{
+      border-color: rgba(134,166,60,.65);
+      background: rgba(134,166,60,.10);
+      font-weight:700;
+    }
+    .nav button.answered{
+      border-color:#cfcfcf;
+    }
+    .nav button:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+    }
+
+    /* ---------------- 结果页 ---------------- */
+    .result-title{
+      font-size: 28px;
+      font-weight: 900;
+      margin: 6px 0 14px 0;
+      text-align:center;
+    }
+
+    .result-section{
+      margin: 14px 0 0 0;
+      padding-top: 14px;
+      border-top: 1px solid #f0f0f0;
+    }
+    .result-label{
+      font-size: 13px;
+      color:#888;
+      margin-bottom: 8px;
+      letter-spacing:.3px;
+    }
+    .result-text{
+      font-size: 18px;
+      line-height: 1.85;
+      white-space: pre-line;
+      margin: 0;
+    }
+
+    .strong{ font-weight: 900; }
+
+    .result-actions{
+      display:flex;
+      justify-content: center;
+      margin-top: 14px;
+    }
+    .ghost{
+      border: 1px solid #cfcfcf;
+      background:#fff;
+      color:#333;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-size: 16px;
+      cursor:pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 封面页（你说已没问题，我保持一致） -->
+  <section class="page active" id="coverPage">
+    <div class="cover-bg">
+      <div class="brand">茂茂然｜陪你把思路理顺</div>
+
+      <div class="card scrollable">
+        <div class="title">你把精力投向哪里，<br>回报感最高？</div>
+
+        <p class="para">有些努力不是没用，
+只是投错了地方。</p>
+
+        <p class="para">这个测试不是告诉你“该更努力”，</p>
+
+        <p class="para">而是帮你判断——
+你的精力，放在哪一类事情上，
+更容易真的“走下去”，并得到回馈。</p>
+
+        <p class="para">如果你在作答过程中，
+觉得有些选项都不完全贴合，
+请选当下更接近你的那一个。</p>
+
+        <p class="para">这个测试关注的是你更偏向哪一边，
+而不是把你固定成某一种人。</p>
+
+        <p class="para italic">当新鲜感退去后，
+你可以靠什么把它走下去？</p>
+      </div>
+    </div>
+
+    <button class="floating" id="startBtn">一起判断下</button>
+  </section>
+
+  <!-- 测试页 -->
+  <section class="page" id="quizPage">
+    <div class="quiz-wrap">
+      <div class="quiz-card">
+        <div class="topbar">
+          <div class="progress" id="progress"></div>
+          <div class="navhint">支持返回上一题 / 任意上一题</div>
+        </div>
+
+        <div class="q-title" id="qText"></div>
+        <div class="options" id="options"></div>
+
+        <div class="nav" id="nav"></div>
+      </div>
+    </div>
+
+    <button class="floating" id="nextBtn" disabled>下一题</button>
+  </section>
+
+  <!-- 结果页（四段结构；不展示分数；不提供重算；只允许返回上一页） -->
+  <section class="page" id="resultPage">
+    <div class="quiz-wrap">
+      <div class="quiz-card">
+        <div class="result-title" id="resultTitle"></div>
+
+        <div class="result-section">
+          <div class="result-label">开头</div>
+          <p class="result-text" id="resultIntro"></p>
+        </div>
+
+        <div class="result-section">
+          <div class="result-label">解读</div>
+          <p class="result-text" id="resultBody"></p>
+        </div>
+
+        <div class="result-section" id="boundarySection" style="display:none;">
+          <div class="result-label">边界提示</div>
+          <p class="result-text" id="resultBoundary"></p>
+        </div>
+
+        <div class="result-actions">
+          <button class="ghost" id="backToLastBtn">返回上一页</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+  /**********************
+   * 1) 维度定义
+   **********************/
+  const TYPES = {
+    ACH: { key: "ACH", name: "成就推进型" },
+    REL: { key: "REL", name: "关系链接型" },
+    EXP: { key: "EXP", name: "探索建构型" },
+    ENE: { key: "ENE", name: "体验滋养型" },
+    STA: { key: "STA", name: "立场锚定型" },
+    MIX: { key: "MIX", name: "混合阶段" }
+  };
+
+  const TYPE_ORDER_STD = ["ACH", "REL", "EXP", "ENE"]; // 标准题 1-4 映射
+
+  /**********************
+   * 2) 题库（你已写好，我保持你的版本）
+   **********************/
+  const questions = [
+    {
+      id: 1,
+      text: "哪种感觉，会让你更愿意坚持做下去？",
+      options: [
+        "看见明确产出（数据/作品/阶段性进展），哪怕过程重复、没什么意思",
+        "被人认可/被需要/有人一起做，即使效率会受点影响",
+        "经过长期推敲、反复修正，把零散问题整理成一套可复用的方法",
+        "身体轻松、心情稳定、状态变好了，哪怕进度慢一点"
+      ]
+    },
+    {
+      id: 2,
+      text: "如果一件事“看不到成果”，但……",
+      options: [
+        "只要目标明确，并且能被拆成阶段性推进，我还能继续",
+        "只要不是完全一个人做、有人一起推进和我互动，我还能继续",
+        "只要方法/逻辑在变得更清晰，我不急",
+        "只要状态不被拖垮，不过度消耗能量，我可以慢慢来"
+      ]
+    },
+    {
+      id: 3,
+      text: "做一件事时，哪种情况最容易让你直接放弃？",
+      options: [
+        "努力了，但进度/成果无法衡量",
+        "做得再多，也没人真正回应，不被人看见",
+        "越做越乱，看不到结构",
+        "长期消耗，身体和情绪都在下滑"
+      ]
+    },
+    {
+      id: 4,
+      text: "下面哪句话你觉得“即使不好听，但最像你”？",
+      options: [
+        "“看不到具体回报，对我来说意义不大。”",
+        "“一个人闷头做，我很难坚持。”",
+        "“要是方法不对，再努力都是浪费。”",
+        "“状态不行的时候，我很难逼自己硬撑。”"
+      ]
+    },
+    {
+      id: 5,
+      text: "当一件事在效率、路径、资源上都很顺，但你内心并不真正认同它时，你更可能：",
+      options: [
+        "先推进一段再说，等结果出来再判断",
+        "看有没有人一起做，会不会好一点",
+        "即使不认同，只要不触碰我的基本原则，我可以继续配合一段时间",
+        "即使顺利，也会逐渐抽离，不愿长期投入"
+      ],
+      isStanceSpecial: true
+    },
+    {
+      id: 6,
+      text: "如果只能选一种长期投入，你更愿意把时间花在：",
+      options: [
+        "能不断产出阶段成果的事，即使过程重复、缺乏新鲜感，也能长期推进",
+        "能持续产生交流和合作的事，即使个人时间被打断，也能坚持",
+        "即使阶段性身心状态起伏较大，也愿意逐步搭建一套理解世界的体系",
+        "优先维护身体与精力，即使一段时间没进行深度思考、成果明显放慢，也愿意接受"
+      ]
+    },
+    {
+      id: 7,
+      text: "当你明显状态下滑时，你更可能优先做的是：",
+      options: [
+        "先完成一个小成果，找回控制感",
+        "找人交流，一起做点什么，让事情重新流动起来",
+        "停下来把下一步拆成最小步骤，重新排出可执行顺序",
+        "优先休息和调整精力，哪怕暂时没进展"
+      ]
+    },
+    {
+      id: 8,
+      text: "如果一个项目要坚持一年，你最需要它具备哪种“续航机制”？",
+      options: [
+        "有清晰的里程碑和可见进步，否则我会很快泄力",
+        "有稳定的互动/陪伴/回应，否则我会慢慢散掉",
+        "有持续变清晰的思路与方法，否则我会觉得在乱耗",
+        "有能保护我状态的节奏与恢复空间，否则我会扛不住"
+      ]
+    },
+    {
+      id: 9,
+      text: "一件事短期回报不高、过程也不轻松，但你非常认同它“本身值得”，你更可能：",
+      options: [
+        "如果看不到进展，我会开始焦虑",
+        "如果没人回应，我会慢慢泄力",
+        "如果结构不清晰，我会停下来先想明白",
+        "只要我认同它，我可以扛很久"
+      ],
+      isStanceSpecial: true
+    },
+    {
+      id: 10,
+      text: "你最容易冲动投入到哪类事？",
+      options: [
+        "能立刻看到进步的训练/挑战",
+        "认识新朋友、合作新项目",
+        "课程、书、知识、工具、框架",
+        "旅行、美食、氛围、身心体验"
+      ]
+    },
+    {
+      id: 11,
+      text: "在团队中，你更常被需要的是：",
+      options: [
+        "盯结果、推节点",
+        "沟通人、促成协作",
+        "梳理问题、搭结构",
+        "稳住节奏、缓冲情绪"
+      ]
+    },
+    {
+      id: 12,
+      text: "当几种方案都“说得通”时，你通常靠什么做决定？",
+      options: [
+        "哪一个更容易产生明确结果",
+        "哪一个更容易获得他人支持",
+        "哪一个逻辑最自洽、可复制",
+        "哪一个让我感觉更不拧巴"
+      ]
+    },
+    {
+      id: 13,
+      text: "你现在最想摆脱的，其实是：",
+      options: [
+        "努力了，却拿不出明确的产出/成绩",
+        "做了很多，却没人真正需要",
+        "信息太多，但始终理不清",
+        "长期疲惫，全靠意志在硬撑"
+      ]
+    },
+    {
+      id: 14,
+      text: "如果一年后只能实现“一个变化”，你希望是：",
+      options: [
+        "有清晰、可展示的成果",
+        "关系网络明显扩大",
+        "拥有一套更成熟、逻辑性更强的方法体系",
+        "建立更可持续的生活节奏（睡眠/运动/饮食更稳定）"
+      ]
+    }
+  ];
+
+  /**********************
+   * 3) 开头段：主+副 20种组合（你已写好，我保持你的版本）
+   **********************/
+  const comboIntro = {
+    "ACH|REL": `你当前最主要的驱动力是【成就推进型】，
+同时，你对【关系链接型】也保持高度敏感。
+
+这意味着：
+你最容易在「推进不断被确认，且有人参与或回应」的事情中，
+找到持续投入的感觉。`,
+
+    "ACH|EXP": `你当前最主要的驱动力是【成就推进型】，
+同时，你对【探索建构型】也保持高度敏感。
+
+这意味着：
+你最容易在「阶段成果清晰，且方法与逻辑逐步成形」的事情中，
+稳定推进而不被消耗。`,
+
+    "ACH|ENE": `你当前最主要的驱动力是【成就推进型】，
+同时，你对【体验滋养型】也保持高度敏感。
+
+这意味着：
+你最容易在「推进感成立，且身体与情绪状态被照顾」的事情中，
+长期坚持而不靠硬撑。`,
+
+    "ACH|STA": `你当前最主要的驱动力是【成就推进型】，
+同时，你对【立场锚定型】也保持高度敏感。
+
+这意味着：
+你最容易在「阶段成果不断出现，且方向与你认同的价值一致」的事情中，
+投入得既快又稳。`,
+
+    "REL|ACH": `你当前最主要的驱动力是【关系链接型】，
+同时，你对【成就推进型】也保持高度敏感。
+
+这意味着：
+你最容易在「互动真实存在，且事情确实在向前推进」的环境中，
+持续输出能量。`,
+
+    "REL|EXP": `你当前最主要的驱动力是【关系链接型】，
+同时，你对【探索建构型】也保持高度敏感。
+
+这意味着：
+你最容易在「有人一起讨论、共创，且问题被逐步理清」的事情中，
+越做越有投入感。`,
+
+    "REL|ENE": `你当前最主要的驱动力是【关系链接型】，
+同时，你对【体验滋养型】也保持高度敏感。
+
+这意味着：
+你最容易在「连接是温和而稳定的，且状态没有被过度消耗」的关系或项目中，
+长期参与而不内耗。`,
+
+    "REL|STA": `你当前最主要的驱动力是【关系链接型】，
+同时，你对【立场锚定型】也保持高度敏感。
+
+这意味着：
+你最容易在「连接真实存在，且这段投入对你来说是有价值的」事情中，
+真正愿意长期付出。`,
+
+    "EXP|ACH": `你当前最主要的驱动力是【探索建构型】，
+同时，你对【成就推进型】也保持高度敏感。
+
+这意味着：
+你最容易在「逻辑逐步成形，且阶段性产出被确认」的事情中，
+把理解转化为长期投入。`,
+
+    "EXP|REL": `你当前最主要的驱动力是【探索建构型】，
+同时，你对【关系链接型】也保持高度敏感。
+
+这意味着：
+你最容易在「问题被共同讨论、结构被一起搭建」的过程中，
+保持探索动力。`,
+
+    "EXP|ENE": `你当前最主要的驱动力是【探索建构型】，
+同时，你对【体验滋养型】也保持高度敏感。
+
+这意味着：
+你最容易在「理解逐渐清晰，且节奏允许你慢慢消化」的事情中，
+深入而不被压垮。`,
+
+    "EXP|STA": `你当前最主要的驱动力是【探索建构型】，
+同时，你对【立场锚定型】也保持高度敏感。
+
+这意味着：
+你最容易在「所思考的问题与你认同的价值高度一致」的事情中，
+长期沉浸并持续深化。`,
+
+    "ENE|ACH": `你当前最主要的驱动力是【体验滋养型】，
+同时，你对【成就推进型】也保持高度敏感。
+
+这意味着：
+你最容易在「身体与精神的状态被优先照顾，且事情仍在稳步向前」的节奏中，
+建立可持续的行动感。`,
+
+    "ENE|REL": `你当前最主要的驱动力是【体验滋养型】，
+同时，你对【关系链接型】也保持高度敏感。
+
+这意味着：
+你最容易在「关系温和、互动不消耗」的环境里，
+保持长期参与的意愿。`,
+
+    "ENE|EXP": `你当前最主要的驱动力是【体验滋养型】，
+同时，你对【探索建构型】也保持高度敏感。
+
+这意味着：
+你最容易在「节奏允许反复理解、慢慢搭建结构」的事情中，
+越做越顺。`,
+
+    "ENE|STA": `你当前最主要的驱动力是【体验滋养型】，
+同时，你对【立场锚定型】也保持高度敏感。
+
+这意味着：
+你最容易在「状态被尊重，且这份投入本身值得」的事情中，
+自然地持续下去。`,
+
+    "STA|ACH": `你当前最主要的驱动力是【立场锚定型】，
+同时，你对【成就推进型】也保持高度敏感。
+
+这意味着：
+你最容易在「方向被你认同，且成果逐渐显现」的事情中，
+把价值感转化为持续行动。`,
+
+    "STA|REL": `你当前最主要的驱动力是【立场锚定型】，
+同时，你对【关系链接型】也保持高度敏感。
+
+这意味着：
+你最容易在「价值被理解、被回应」的关系或项目中，
+真正愿意长期投入。`,
+
+    "STA|EXP": `你当前最主要的驱动力是【立场锚定型】，
+同时，你对【探索建构型】也保持高度敏感。
+
+这意味着：
+你最容易在「所探索的问题与你认同的方向一致」的事情中，
+长时间深度思考而不动摇。`,
+
+    "STA|ENE": `你当前最主要的驱动力是【立场锚定型】，
+同时，你对【体验滋养型】也保持高度敏感。
+
+这意味着：
+你最容易在「这件事值得，且节奏不会掏空你」的投入中，
+稳定而持久地前进。`
+  };
+
+  function soloIntro(mainKey){
+    return `你当前最主要的驱动力是【${TYPES[mainKey].name}】。`;
+  }
+
+  /**********************
+   * 4) 主类型正文（按文档原文）
+   *    你前面 ACH/REL 已写好；我把 EXP/ENE/STA 补全，并加上 MIX
+   **********************/
+  const mainBodies = {
+    ACH: `成就推进型｜你的回报感来自“持续被确认的推进”
+
+你之所以在这类事情上更容易坚持，
+是因为目前“推进感”最能驱动你。
+
+---------------
+“你是不是太功利 / 太结果导向了？”
+这是成就推进型被贴得最多的标签。
+
+但真相是，
+你不是迷恋结果，
+而是无法忍受“不知道自己有没有往前走”。
+
+对成就推进型来说，
+看不到阶段成果 = 意志力被抽空
+
+所以你会
+不断确认节点、
+反复拆目标、
+对“空谈”“模糊愿景”产生强烈不耐
+
+另一个误解：“你是不是没耐心 / 太着急了？”
+但这是一个非常典型的因果倒置。
+
+实际上你不是不能等，
+只是不能在“没有任何推进信号”的状态下等。
+
+只要满足两点：有清晰阶段、有推进反馈
+成就推进型反而非常能长期投入，甚至比很多人更稳。
+
+有些事情卡住了你，
+不一定是“有没有完全掌控、理解”
+而是有没有在走，
+你是个可以边走边想的人。
+
+你适合把精力投向
+能不断被拆解、被确认、被推进的事情，
+比如：项目制目标 / 可量化训练 / 阶段性交付型工作。
+
+加速策略
+1）把目标拆成能在 3–7 天内确认进展的小阶段
+2）优先做“能推进整体 20% 的关键步骤”，而不是平均用力
+
+止损提醒
+别再逼自己“再坚持一下”，
+如果你已经连续一段时间确认不了进展，
+这不是意志问题，是结构问题。
+
+7 天行动（推进校准）
+用 7 天时间，
+把你现在最消耗的一件事，
+拆成一个“每天都能确认推进”的最小路径。
+
+执行方式：
+每天只问一句：“我今天把哪一小块向前推了？”
+不要求完美，只要求推进被记录
+
+判断标准不是累不累，
+而是这一周结束，
+你能不能清楚说出：
+这件事现在推进到哪一步了。
+
+给此刻的你一点小说明
+这个结果反映的，
+是你当下对“推进感”的需求。
+当阶段目标、节奏或生活重心发生变化，
+你的回报模式也可能随之调整。
+你可以在几个月后，再来看看此刻的你。`,
+
+
+    REL: `关系链接型｜你的回报感来自“人带来的流动”
+
+你之所以在这类事情上更容易坚持，
+是因为目前“人的回应”最能驱动你。
+
+---------------
+“你是不是太在意别人怎么看你了？”
+这是关系链接型听得最多的一句话。
+
+但真实情况是
+你并不是在意评价，
+而是在意“有没有回应”。
+
+·评价 = 判断你是好是坏
+·回应 = 告诉你“我收到了 / 我在继续 / 我愿意接住”
+
+关系链接型还容易被误解为
+“你是不是有点依赖别人？”
+
+你很容易被贴上
+依赖型 / 没安全感 / 需要陪伴
+
+但真相是
+你不是依赖某个人，
+而是依赖“互动中的流动感”。
+
+只要有互动、有反馈，
+和谁不一定、场景也不一定
+你真正依赖的，是连接本身，不是对象。
+
+对你来说，
+连接不是情绪需求，
+而是让事情继续流动的机制。
+
+最容易被你内化的误解是：
+“你是不是一个人就不太行？”
+
+很多关系链接型确实会在独处或单打独斗时
+状态明显下滑、效率下降、开始怀疑自己能力是不是不行
+
+但真实情况是，
+你的能力并没有消失，
+只是失去了最重要的能量来源：回应。
+
+千万不要因此演变成长期的自我否定，
+你只是很难在没有任何互动的环境中长期输出能量。
+
+你需要的不是“更独立”，
+而是一个能对你产生回应的环境。
+这不是所有环境都能提供的，
+所以选环境，对你来说尤其重要。
+
+
+你适合把精力投向
+能形成互动、协作或共同推进的事情，
+而不是长期单向输出、无人回应的努力。
+
+
+加速策略
+1）优先进入有真实反馈回路的环境（哪怕规模小）
+2）把“有人一起”当作效率条件，而不是情绪需求
+
+
+止损提醒
+别再把“没有回应”合理化成“我应该更独立”，
+长期无回应，只会慢慢抽干你的能量。
+
+
+7 天行动
+用 7 天时间，
+刻意让你的一项投入，
+进入一个“会被接住”的场域。
+
+
+执行方式（任选一个）：
+1.把你正在做的事，放进一个小群体 / 合作关系
+2.主动创造一次双向互动（讨论、共创、协作）
+
+判断标准不是你付出了多少，
+而是这一周里，
+有没有哪一次回应，
+让你明显“重新想继续”。
+
+
+给此刻的你一点小说说明
+你现在的回报感，
+很大一部分来自“连接是否顺畅”。
+但当关系结构、环境或角色变化时，
+你的关注点也可能发生转移。
+这个测试，随时欢迎你回来重看。`,
+
+    EXP: `探索建构型｜你的回报感来自“把复杂变成体系”
+
+你之所以在这类事情上更容易坚持，
+是因为目前“建立清晰的逻辑结构”最能驱动你。
+
+---------------
+
+你的回报模式解读：
+
+你真正抗拒的不是“立刻行动”，
+而是在“我还没弄清楚这件事是什么”和
+“推进步骤不清晰”的情况下，
+被要求往前冲的那种“乱”。
+
+你会在这种情境下
+效率断崖式下降，
+开始怀疑自己是不是执行力差。
+
+但真相是，
+你的能量来自“结构成形”与“步骤明确”，
+不是“行动本身”。
+
+你很容易被误判为“想太多 / 不落地”
+这是探索建构型人群最常见的外部误解，
+也是内化成自责的来源。
+
+可你不是执行力不足，
+而是执行的前提，比别人多了一层——
+你需要成形的框架与逻辑。
+
+
+你适合把精力投向
+能不断被整理、被复用、被深化的事情，
+比如：学习研究/写作输出/流程工具化/方法论产品
+
+
+加速策略
+1）把你的理解写成“可复用模板”（清单/流程/框框）
+2）用“做中学”：每学一个点就立刻做一个小的应用
+
+
+止损提醒
+别沉迷收藏资料，
+否则你会越来越“觉得自己懂了”，
+却越来越拿不出东西。
+必须有“产出节点”
+
+
+7天行动（不是打卡，是沉淀）
+用 7 天时间，
+把你最近在反复思考的一件事，
+整理成一个“以后还能继续用”的雏形。
+
+
+执行方式：
+1）用 20 分钟写下：这件事最核心的 3 个问题是什么？
+2）把你目前的理解整理成 1 页纸（框架 / 流程 / 清单都行）
+3）找一个最小应用场景：用它解决一个真实问题
+
+判断标准不是你收集了多少信息，
+而是 7 天后你能不能清楚说出：
+“我现在的框架是什么，下一步怎么继续完善。”
+
+
+给此刻的你一点小说明
+这个结果反映的，
+是你当下对“结构与理解”的需求强度。
+当你完成一次阶段梳理后，
+你的回报模式也可能随之调整。
+你可以在几个月后，再来看看那时的你。`,
+
+    ENE: `体验滋养型｜你的回报感来自“状态好了，一切都顺”
+
+你之所以在这类事情上更容易坚持，
+是因为目前“身体的精力充沛感”最能驱动你。
+
+---------------
+
+体验滋养型最容易被内化的误解是：
+“我是不是太脆弱了？”
+
+你在长期消耗后，
+会明显感知到身体和情绪的预警、
+会比别人更早停下来。
+
+但这并不是脆弱，
+而是一种非常重要的能力：
+你更早听见“系统过载”的信号。
+
+你不是没能力坚持，
+你只是无法在透支状态下坚持。
+
+“你是不是不够努力 / 不够拼？”
+是体验滋养型最常被贴的标签。
+
+我们大多数社会评价体系，
+默认用的是：
+“你能扛多久、你能多拼”作为努力的证明。
+
+而体验滋养型遵循的是另一套逻辑
+“我能不能长期保持可用状态”。
+
+这两套逻辑天然冲突。
+
+所以体验滋养型常常：
+被要求“再忍一忍”
+被要求“别太敏感”
+被要求“先扛住再说”
+
+久而久之，
+可能你开始怀疑自己。
+
+可当你能量充足时，
+你甚至可能是效率最高的那个人；
+但当你被长期消耗时，
+你的动力会快速归零。
+
+不欺骗自己的身体和情绪，
+不在已经不对的状态里继续加码，
+这一点在关系里、在创作里、在长期项目中，
+都极其珍贵。
+
+和体验滋养型合作，往往能更早发现
+节奏是否有问题
+系统是否在崩
+人是否快扛不住了
+
+你适合把精力投向
+能够建立稳定节奏、允许恢复与调整的事情，
+而不是长期紧绷、持续透支的推进方式。
+
+
+加速策略
+1）把“恢复”当作推进的一部分（安排在计划里，而不是看心情）
+2）找到适合你的节奏单位（以天/周为单位），不要用意志硬拉
+
+
+止损提醒
+别把身体发出的警告当作“懒”
+当你明显疲惫、情绪低落、睡眠变差，
+这不是你不够努力，
+而是系统需要恢复。
+
+
+7天行动（能量校准）
+用接下来 7 天时间，
+把你当前最耗能的一件事，
+改成一个“不会透支也能继续”的节奏。
+
+
+执行方式：
+1）每天先做 1 个能让状态变好的小动作（睡眠/运动/饮食/散步任选）
+2）把最重要的投入压缩到“可持续的最低版本”
+3）记录：哪一种节奏让你第二天还愿意继续
+
+判断标准不是你做了多少，
+而是这一周结束，
+你是否更稳定、更愿意继续。
+
+
+给此刻的你一点小说明
+这个结果反映的，
+是你当下对“状态与节奏”的敏感程度。
+当你完成一段恢复与调整后，
+你的回报模式也可能随之变化。
+你可以在几个月后，再来看看那时的你。`,
+
+    STA: `立场锚定型｜你的回报感来自“我站在哪一边”
+
+对你来说，
+“值不值得”，
+比“快不快 / 顺不顺 / 有没有人陪”，
+更早决定你会不会继续投入。
+
+---------------
+
+你真正无法忍受的，
+不是慢、不是累、也不是阶段性没有回报，
+而是在一件你并不认同的事情上，
+长期消耗自己。
+
+当你对一件事有清晰立场时，
+你会非常能扛，
+甚至能在外界看起来“很不划算”的投入里，
+持续走很久。
+
+但当价值锚点不成立时，
+你会比别人更早松手，
+不是因为你不努力，
+而是因为你不愿意在“无意义”的消耗里继续。
+
+立场锚定型最常见的误解是：
+“你是不是太挑 / 太理想化？”
+
+但真相是：
+你不是挑剔，
+你是在保护自己的长期能量。
+
+
+你适合把精力投向
+能够与你价值观对齐、能让你感到“值得”的方向，
+而不是短期看起来更顺、但长期让你越来越拧巴的事情。
+
+
+加速策略
+1）先确认“这件事对我来说在价值排序里排第几”
+2）把价值锚点写出来：我为什么要做？做到什么程度算值得？
+
+
+止损提醒
+如果你反复问“我为什么要做这件事”，
+却始终给不出答案，
+这往往不是懒，
+而是意义锚点已经松动。
+
+
+7天行动（价值校准）
+用 7 天时间，
+把你目前最消耗的一件事，
+重新放回价值排序里看一遍。
+
+
+执行方式：
+1）写下这件事的“意义锚点”是什么（不是口号，是你真的认同的理由）
+2）写下它的“交换代价”是什么（时间/精力/关系/机会）
+3）判断：这个交换我还愿不愿意继续？
+
+判断标准不是效率，
+而是这一周结束，
+你是否更清楚地知道
+这份力，是继续给，还是该收回。
+
+
+给此刻的你一点小说明
+这个结果反映的，
+是你当下对“立场和价值观”的需求强度。
+
+当阶段、角色或价值排序发生变化时，
+你的驱动方式也可能随之调整。
+
+这个测试不是要把你固定成某一类，
+而是帮你看清
+你现在，是站在哪一边在行动。
+
+如果你愿意，
+在一次重要阶段调整之后，
+再回来看看那时的你。`,
+
+    MIX: `无明确类型
+你目前没有明显单一的回报驱动，
+可能正处在一个过渡或混合阶段。
+
+
+你看到这个结果，可能会有一点失落
+
+但这一页不是兜底结果，
+而是对你当前状态的真实判断。
+
+这意味着什么？
+
+在这次测试中，
+你在不同类型上的得分 都没有明显拉开差距。
+
+这通常说明一件事——
+你目前并不是被单一一种回报机制驱动，
+而是多种需求同时存在、彼此拉扯。
+
+你既在意推进有没有发生，
+也在意有没有回应；
+你希望把事情想清楚，
+同时又对状态消耗保持高度警觉。
+
+这不是混乱，
+而是一个正在重新分配精力与方向的阶段。
+
+为什么这类结果，反而很常见？
+
+很多人会在以下时期，
+出现这样的测试结果：
+角色正在变化（工作 / 关系 / 身份）
+对过去的投入方式开始产生怀疑
+明确知道“不能再像以前那样用力”，
+但新的方式还没完全成形
+
+在这些阶段里，
+任何过早的“定型”，反而是不准确的。
+
+这并不代表你“没有特点”
+
+恰恰相反——
+你对多种回报信号都保持敏感。
+
+只是现在，还没有哪一种
+强到可以成为你的“主引擎”。
+
+你不是没有驱动力，
+而是正在寻找一个值得长期投入的重心。
+
+这段时间，你更适合做的不是“选边站”
+
+而是先回答这几个问题（不用一次想清楚）：
+哪些事情，让你投入后不太后悔？
+哪些努力，会在几周后让你明显更累？
+当你放慢一点节奏时，有没有什么反而开始变清楚？
+
+这些答案，
+比立刻知道“我属于哪一型”更重要。
+
+
+一个温和的行动建议
+
+7 天观察，而不是 7 天改变
+
+用接下来 7 天时间，
+不刻意优化、不逼自己做选择，
+只做一件事：
+
+记录哪一类投入，
+在一周后让你更想继续，而不是更想逃离。
+
+判断标准不是效率，
+而是你愿不愿意，
+再给它一点时间。
+
+
+写给此刻的你
+
+这个测试的目的，
+从来不是把所有人塞进某个类型里。
+当你的阶段、环境或重心发生变化后，
+你可以在几个月后，
+再回来看看那时的自己。`
+  };
+
+  /**********************
+   * 5) 副驱动边界提示（按文档原文）
+   **********************/
+  const boundaryTexts = {
+    ACH: `在你的组合里，
+成就推进型并不是主要的行动引擎，
+而是决定你是否会因长期看不到推进而泄力的边界条件。
+
+当你发现自己开始频繁怀疑：
+“我到底有没有在往前走？”
+这往往不是你不适合这件事，
+而是推进信号太弱。
+
+这时，你需要做的不是换方向，
+而是为当前投入增加一个
+可被确认的阶段性节点，
+让自己看到阶段性的小成果。`,
+
+    REL: `在你的组合里，
+关系链接型并不是推动你行动的核心，
+而是决定你是否会在长期无回应中被抽空的边界条件。
+
+当你发现自己
+明明还在推进，却越来越不想继续，
+这往往不是能力问题，
+而是“互动断流”的信号。
+
+这时，你不需要逼自己更独立，
+而是需要为这件事
+引入一次真实的回应或协作。`,
+
+    EXP: `在你的组合里，
+探索建构型不是主要推进力量，
+而是决定你是否会在结构混乱中失去能量的边界条件。
+
+当你发现自己
+越做越乱、却说不清卡在哪里，
+这通常不是拖延，
+而是理解框架还没成形。
+
+这时，你不需要加速，
+而是需要先停下来
+把逻辑补全或明确执行步骤。`,
+
+    ENE: `在你的组合里，
+体验滋养型并不是决定方向的因素，
+而是决定你是否会在透支中崩盘的边界条件。
+
+当你发现自己
+越来越靠意志硬撑、状态明显下滑，
+这往往不是你不够自律，
+而是能量系统已经超载。
+
+这时，你需要做的不是咬牙，
+而是先恢复状态，再谈推进效率。`,
+
+    STA: `在你的组合里，
+立场锚定型不是行动速度的来源，
+而是决定你是否会在价值失效时松手的边界条件。
+
+当你发现自己
+反复问“我为什么要做这件事”，
+却始终给不出答案，
+这通常不是懒，
+而是意义锚点已经松动。
+
+这时，你需要做的不是更努力，
+而是重新确认或调整这件事的价值位置。`
+  };
+
+  /**********************
+   * 6) DOM 引用
+   **********************/
+  const coverPage  = document.getElementById("coverPage");
+  const quizPage   = document.getElementById("quizPage");
+  const resultPage = document.getElementById("resultPage");
+
+  const startBtn   = document.getElementById("startBtn");
+  const nextBtn    = document.getElementById("nextBtn");
+
+  const progressEl = document.getElementById("progress");
+  const qTextEl    = document.getElementById("qText");
+  const optionsEl  = document.getElementById("options");
+  const navEl      = document.getElementById("nav");
+
+  const resultTitleEl    = document.getElementById("resultTitle");
+  const resultIntroEl    = document.getElementById("resultIntro");
+  const resultBodyEl     = document.getElementById("resultBody");
+  const boundarySection  = document.getElementById("boundarySection");
+  const resultBoundaryEl = document.getElementById("resultBoundary");
+  const backToLastBtn    = document.getElementById("backToLastBtn");
+
+  /**********************
+   * 7) 状态：答案与导航
+   **********************/
+  const N = questions.length;
+  let currentIndex = 0;
+  let answers = new Array(N).fill(null); // 每题存 0-3
+  let lastPageWasResult = false;
+
+  function showPage(page){
+    [coverPage, quizPage, resultPage].forEach(p => p.classList.remove("active"));
+    page.classList.add("active");
+    window.scrollTo(0, 0);
+  }
+
+  function isAnswered(i){
+    return answers[i] !== null && answers[i] !== undefined;
+  }
+
+  function maxAnsweredIndex(){
+    let m = -1;
+    for(let i=0;i<N;i++){
+      if(isAnswered(i)) m = i;
+    }
+    return m;
+  }
+
+  function firstUnansweredFrom(i){
+    for(let k=i;k<N;k++){
+      if(!isAnswered(k)) return k;
+    }
+    return -1;
+  }
+
+  /**********************
+   * 8) 渲染题目 + 选项（保留答案）
+   **********************/
+  function renderQuestion(){
+    const q = questions[currentIndex];
+
+    progressEl.textContent = `进度：${currentIndex + 1} / ${N}`;
+    qTextEl.textContent = `${currentIndex + 1}. ${q.text}`;
+
+    optionsEl.innerHTML = "";
+    const picked = answers[currentIndex];
+
+    q.options.forEach((txt, idx) => {
+      const div = document.createElement("div");
+      div.className = "opt";
+      div.textContent = txt;
+
+      if(picked === idx){
+        div.classList.add("active");
+      }
+
+      div.addEventListener("click", () => {
+        // 选中
+        answers[currentIndex] = idx;
+
+        // UI
+        [...optionsEl.children].forEach(c => c.classList.remove("active"));
+        div.classList.add("active");
+
+        // 下一步按钮
+        nextBtn.disabled = false;
+        nextBtn.textContent = (currentIndex === N - 1) ? "看结果" : "下一题";
+
+        // 导航更新
+        renderNav();
+      });
+
+      optionsEl.appendChild(div);
+    });
+
+    // nextBtn 状态
+    if(isAnswered(currentIndex)){
+      nextBtn.disabled = false;
+      nextBtn.textContent = (currentIndex === N - 1) ? "看结果" : "下一题";
+    } else {
+      nextBtn.disabled = true;
+      nextBtn.textContent = (currentIndex === N - 1) ? "看结果" : "下一题";
+    }
+
+    renderNav();
+  }
+
+  /**********************
+   * 9) 题目导航（任意上一题）
+   * - 只允许跳到 <= 当前题（符合“任意上一题”）
+   * - 未来题禁用
+   **********************/
+  function renderNav(){
+    navEl.innerHTML = "";
+
+    for(let i=0;i<N;i++){
+      const btn = document.createElement("button");
+      btn.textContent = `${i+1}`;
+      if(i === currentIndex) btn.classList.add("current");
+      if(isAnswered(i)) btn.classList.add("answered");
+
+      // 只允许返回上一题 / 任意上一题：因此 i <= currentIndex
+      if(i > currentIndex){
+        btn.disabled = true;
+      }
+
+      btn.addEventListener("click", () => {
+        if(i > currentIndex) return;
+        currentIndex = i;
+        renderQuestion();
+      });
+
+      navEl.appendChild(btn);
+    }
+  }
+
+  /**********************
+   * 10) 计分：按文档规则
+   * - 标准题：1-4 -> ACH/REL/EXP/ENE，每次 +1
+   * - 第5/9题：第4选项 -> STA，基础 +2；题目整体权重 ×1.5
+   *   其余选项仍按 1-3 -> ACH/REL/EXP；（第4不再是 ENE）
+   **********************/
+  function scoreAll(){
+    const s = { ACH:0, REL:0, EXP:0, ENE:0, STA:0 };
+
+    for(let i=0;i<N;i++){
+      const q = questions[i];
+      const pick = answers[i];
+
+      if(pick === null || pick === undefined) continue;
+
+      let typeKey = null;
+      let base = 1;
+      let weight = 1;
+
+      if(q.isStanceSpecial){
+        // 第5/9题
+        weight = 1.5;
+
+        if(pick === 3){
+          // 第4选项 -> STA，基础+2
+          typeKey = "STA";
+          base = 2;
+        } else {
+          // 1-3 -> ACH/REL/EXP
+          typeKey = TYPE_ORDER_STD[pick]; // 0..2
+          base = 1;
+        }
+      } else {
+        // 标准题
+        typeKey = TYPE_ORDER_STD[pick];
+        base = 1;
+        weight = 1;
+      }
+
+      s[typeKey] += base * weight;
+    }
+
+    return s;
+  }
+
+  function sumScores(s){
+    return s.ACH + s.REL + s.EXP + s.ENE + s.STA;
+  }
+
+  /**********************
+   * 11) 判定：主类型 + 副类型 + 混合阶段
+   * - 主类型：最高分；并列用第1题裁决
+   * - 副类型：第二高；仅当 副 >= 主 * 0.8
+   * - 混合阶段：先判主+副；若副未触发 且 主/总 < 0.35 -> 混合阶段
+   **********************/
+  function pickMainType(scores){
+    const keys = ["ACH","REL","EXP","ENE","STA"];
+
+    // 找最高分
+    let max = -Infinity;
+    keys.forEach(k => { if(scores[k] > max) max = scores[k]; });
+
+    const tied = keys.filter(k => Math.abs(scores[k] - max) < 1e-9);
+
+    if(tied.length === 1) return tied[0];
+
+    // 并列：用第1题选项裁决（第1题为标准题映射）
+    // 第1题选项 1-4 -> ACH/REL/EXP/ENE
+    const q1Pick = answers[0];
+    if(q1Pick !== null && q1Pick !== undefined){
+      const q1Key = TYPE_ORDER_STD[q1Pick]; // ACH/REL/EXP/ENE
+      if(tied.includes(q1Key)) return q1Key;
+    }
+
+    // 若仍无法裁决（极小概率）：按固定顺序
+    const order = ["ACH","REL","EXP","ENE","STA"];
+    for(const k of order){
+      if(tied.includes(k)) return k;
+    }
+    return tied[0];
+  }
+
+  function pickSecondary(scores, mainKey){
+    const keys = ["ACH","REL","EXP","ENE","STA"].filter(k => k !== mainKey);
+
+    // 第二高
+    let best = keys[0];
+    keys.forEach(k => {
+      if(scores[k] > scores[best]) best = k;
+    });
+
+    // 阈值：副 >= 主 * 0.8
+    const main = scores[mainKey];
+    const second = scores[best];
+
+    if(second >= main * 0.8){
+      return best;
+    }
+    return null;
+  }
+
+  function shouldBeMix(scores, mainKey, secondaryKey){
+    if(secondaryKey) return false; // 文档：若主+副已成立，不进混合
+    const total = sumScores(scores);
+    if(total <= 0) return true;
+    const ratio = scores[mainKey] / total;
+    return ratio < 0.35;
+  }
+
+  /**********************
+   * 12) 结果渲染（四段结构）
+   **********************/
+  function getIntroText(mainKey, secondaryKey){
+    if(!secondaryKey) return soloIntro(mainKey);
+    const key = `${mainKey}|${secondaryKey}`;
+    return comboIntro[key] || soloIntro(mainKey);
+  }
+
+  function renderResult(){
+    const scores = scoreAll();
+
+    const mainKey = pickMainType(scores);
+    const secondaryKey = pickSecondary(scores, mainKey);
+
+    // 混合阶段判定（优先级：主+副 -> 否则主占比不足进入混合）
+    if(shouldBeMix(scores, mainKey, secondaryKey)){
+      resultTitleEl.textContent = TYPES.MIX.name;
+      resultIntroEl.textContent = "你目前没有明显单一的回报驱动，可能正处在一个过渡或混合阶段。";
+      resultBodyEl.textContent = mainBodies.MIX;
+      boundarySection.style.display = "none";
+      resultBoundaryEl.textContent = "";
+      return;
+    }
+
+    // 正常主类型
+    resultTitleEl.textContent = TYPES[mainKey].name;
+
+    // 开头段：主+副组合（或仅主）
+    resultIntroEl.textContent = getIntroText(mainKey, secondaryKey);
+
+    // 正文：只显示主类型正文
+    resultBodyEl.textContent = mainBodies[mainKey];
+
+    // 边界提示：只有副类型存在时显示
+    if(secondaryKey){
+      boundarySection.style.display = "block";
+      resultBoundaryEl.textContent = boundaryTexts[secondaryKey] || "";
+    } else {
+      boundarySection.style.display = "none";
+      resultBoundaryEl.textContent = "";
+    }
+  }
+
+  /**********************
+   * 13) 下一题逻辑
+   * - 允许任意上一题
+   * - 下一题默认走到“当前题+1”；若是最后一题则尝试出结果
+   * - 若未全部答完，自动跳到第一道未答题
+   **********************/
+  function goNext(){
+    if(!isAnswered(currentIndex)) return;
+
+    if(currentIndex < N - 1){
+      currentIndex++;
+      renderQuestion();
+      return;
+    }
+
+    // 当前是最后一题：若有未答题，跳回第一道未答；否则出结果
+    const miss = firstUnansweredFrom(0);
+    if(miss !== -1){
+      currentIndex = miss;
+      renderQuestion();
+      return;
+    }
+
+    // 全部答完 -> 结果页
+    renderResult();
+    lastPageWasResult = true;
+    showPage(resultPage);
+  }
+
+  /**********************
+   * 14) 事件绑定
+   **********************/
+  startBtn.addEventListener("click", () => {
+    // 进入测试：不清空答案（你如果需要“每次都重来”，把下面两行取消注释）
+    // answers = new Array(N).fill(null);
+    // currentIndex = 0;
+
+    lastPageWasResult = false;
+    showPage(quizPage);
+    renderQuestion();
+  });
+
+  nextBtn.addEventListener("click", () => {
+    goNext();
+  });
+
+  // 结果页只允许返回上一页（保持心理闭合感）
+  backToLastBtn.addEventListener("click", () => {
+    lastPageWasResult = false;
+    showPage(quizPage);
+    // 返回最后一题（或当前题）
+    // 这里按“上一页”直觉：回到最后一题
+    currentIndex = Math.min(N - 1, Math.max(0, currentIndex));
+    renderQuestion();
+  });
+
+</script>
