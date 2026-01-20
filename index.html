@@ -1,57 +1,60 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>¿ªÊ¼²âÊÔ</title>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>å¼€å§‹æµ‹è¯•</title>
 
   <style>
+    :root{
+      --bg:#8fae52;
+      --card:#f6f8e6;
+      --btn:#86A63C;
+      --text:#1f1f1f;
+      --muted:#666;
+    }
+    html,body{ margin:0; padding:0; height:100%; background:var(--bg); }
     body{
-      margin:0;
-      height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:#8fae52;
-      font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial;
-    }
-    .box{
-      background:#f6f8e6;
+      font-family: system-ui, -apple-system, "PingFang SC", "Hiragino Sans GB",
+                   "Microsoft YaHei", Arial, sans-serif;
+      display:flex; align-items:center; justify-content:center;
       padding:24px;
-      border-radius:16px;
+      color:var(--text);
+    }
+    .card{
+      width:min(420px, 100%);
+      background:var(--card);
+      border-radius:18px;
+      padding:26px 22px 22px;
+      box-shadow:0 14px 40px rgba(0,0,0,.18);
       text-align:center;
-      width:80%;
-      max-width:360px;
     }
-    h1{
-      font-size:20px;
-      margin-bottom:16px;
+    h1{ margin:0 0 12px; font-size:20px; font-weight:800; }
+    .desc{ margin:0 0 18px; font-size:14px; line-height:1.7; color:var(--muted); }
+    .btn{
+      width:100%; height:50px; border:0; border-radius:999px;
+      background:var(--btn); color:#fff; font-size:16px; font-weight:700;
     }
-    button{
-      width:100%;
-      height:48px;
-      border:none;
-      border-radius:999px;
-      background:#86A63C;
-      color:#fff;
-      font-size:16px;
-      font-weight:600;
+    .tip{
+      margin:14px 0 0; font-size:12px; line-height:1.6; color:#777;
     }
-    p{
-      font-size:12px;
-      color:#666;
-      margin-top:12px;
-      line-height:1.5;
-    }
+    .tip b{ color:#333; }
   </style>
 </head>
 
 <body>
-  <div class="box">
-    <h1>¿ªÊ¼ĞÄÀí²âÊÔ</h1>
-    <button onclick="go()">¿ªÊ¼²âÊÔ</button>
-    <p>ÈçÎŞ·¨´ò¿ª£¬Çëµã»÷ÓÒÉÏ½Ç ¡¤¡¤¡¤ ¡ú ÔÚä¯ÀÀÆ÷ÖĞ´ò¿ª</p>
+  <div class="card">
+    <h1>å¼€å§‹å¿ƒç†æµ‹è¯•</h1>
+    <p class="desc">
+      ç‚¹å‡»æŒ‰é’®è¿›å…¥æµ‹è¯•ã€‚<br>
+      è‹¥æ— æ³•åœ¨å°çº¢ä¹¦å†…æ‰“å¼€ï¼šç‚¹å³ä¸Šè§’ <b>Â·Â·Â·</b> â†’ <b>åœ¨æµè§ˆå™¨ä¸­æ‰“å¼€</b><br>
+      æˆ–é€‰æ‹© <b>å¤åˆ¶é“¾æ¥</b> åç²˜è´´åˆ°æµè§ˆå™¨ã€‚
+    </p >
+
+    <button class="btn" onclick="go()">å¼€å§‹æµ‹è¯•</button>
+
+    <p class="tip">å»ºè®®ï¼šåœ¨æµè§ˆå™¨æ‰“å¼€åä½“éªŒæ›´ç¨³å®šã€‚</p >
   </div>
 
   <script>
